@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import Tesseract from 'tesseract.js';
 import './App.css';
+
 
 const App = () => {
 
@@ -9,8 +11,21 @@ const App = () => {
   const [progress , setProgress] = useState(0);
 
   const handleClick = () => {
-
-  }
+    setIsLoading(true);
+    Tesseract.recognize(
+      image, 
+      'eng',
+      { logger: m => {
+        console.log(m);
+        // if ( m.status === "recognizing text" ) {
+        //   setProgress( parseInt(m.progress * 100) )
+        // } 
+      },
+      }).then(({ data: { text } }) => {
+      setText(text);
+      setIsLoading(false);
+    });
+  };
 
   return (
     <div className="container" style={{height:"100vh"}}>
@@ -26,7 +41,7 @@ const App = () => {
                   type="file"
                   className='form-control mt-5'
                   onChange={(e) => 
-                    setImage(URL.createObjectURL(e.value.files[0]))
+                    setImage(URL.createObjectURL(e.target.files[0]))
                   }
                 />
                 <input 
@@ -48,7 +63,7 @@ const App = () => {
              {
               !isLoading && text && (
                 <>
-                  <textarea className='form-control' rows="15" value={text} onChange={() =>
+                  <textarea className='form-control' rows="15" value={text} onChange={(e) =>
                     setText(e.target.value)}></textarea>
                 </>
               )}
